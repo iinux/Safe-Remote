@@ -1,5 +1,5 @@
 import java.io.PrintWriter;
-
+//J Update
 
 public class Global{
 	public static boolean debug=false;
