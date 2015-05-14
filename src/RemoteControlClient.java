@@ -1,18 +1,16 @@
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
 
-public class YckzC {
+public class RemoteControlClient {
 	String serverIP="127.0.0.1";
 	int serverPort=1022;
 	Socket socket;
+	ClientMailRoomThread clientMailRoomThread;
 	private static java.lang.Object ByteToObject(byte[] bytes){
         java.lang.Object obj=null;
         try {
@@ -31,30 +29,21 @@ public class YckzC {
         }
         return obj;
     }
-	public YckzC() throws UnknownHostException, IOException {
+	public RemoteControlClient() throws UnknownHostException, IOException {
 		socket=new Socket(serverIP,serverPort);
-		BufferedReader br= new BufferedReader(new InputStreamReader( socket.getInputStream() ));
-		PrintWriter bw= new PrintWriter( socket.getOutputStream() );
+
+		clientMailRoomThread=new ClientMailRoomThread(socket, this);
+		new Thread(clientMailRoomThread).start();
 
 		Scanner scanner=new Scanner(System.in);
 		String input_str,output;
 		while(true){
 			input_str=scanner.nextLine();
-			bw.println(input_str);
-			bw.flush();
+			clientMailRoomThread.send(input_str);
 			char[] output_buf = new char[1000];
-			br.read(output_buf);
-			output=new String(output_buf);
-			say(output);
-			if(output.equals("exit")) {
-				break;
-			}
 		}
 		
-		scanner.close();
-		bw.close();
-		br.close();
-		socket.close();
+		//scanner.close();
 	}
 	private void say(String s){
 		System.out.println("[Client]:"+s);

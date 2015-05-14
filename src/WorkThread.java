@@ -2,13 +2,10 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -23,31 +20,21 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-class RunReturn{
-	public String print;
-	public int code;
-	public RunReturn() {
-		this.print="";
-		this.code=0;
-	}
-}
 
-
-
-public class YckzS implements Runnable{
+public class WorkThread implements Runnable{
+	private Socket socket;
 	PublicKey pukey;
 	PrivateKey prkey;
-	private void prepareEncrypt() throws NoSuchAlgorithmException, IOException{
+	private void getKeyAndSend() throws NoSuchAlgorithmException, IOException{
 		KeyPairGenerator kpg=KeyPairGenerator.getInstance("RSA"); 
 		kpg.initialize(1024); 
 		KeyPair kp=kpg.genKeyPair(); 
 		pukey=kp.getPublic(); 
 		prkey=kp.getPrivate(); 
 		byte[] pukey_byte=ObjectToByte(pukey);
-		
-
+		serverMailRoomThread.send(pukey_byte);
 	}
-	public byte[] ObjectToByte(java.lang.Object obj)
+	private byte[] ObjectToByte(java.lang.Object obj)
     {
         byte[] bytes=null;
         try {
@@ -150,46 +137,30 @@ public class YckzS implements Runnable{
 		}
 		return rr;
 	}
-	ServerSocket server;
-	Socket client;
+	public WorkThread(Socket socket) {
+		this.socket=socket;
+	}
+	private ServerMailRoomThread serverMailRoomThread;
+	
+	private void init() throws IOException, NoSuchAlgorithmException{
+		serverMailRoomThread = new ServerMailRoomThread(socket, this);
+		new Thread(serverMailRoomThread).start();
+		
+		//getKeyAndSend();
+	}
 	@Override
 	public void run() {
+
 		try {
-			server=new ServerSocket(1022);
-			while(true){
-				client=server.accept();
-				say("one client connected!");
-				BufferedReader br= new BufferedReader(new InputStreamReader( client.getInputStream() ));
-				PrintWriter pw= new PrintWriter( client.getOutputStream() );
-				String s;
-				while(true){
-					s=br.readLine();
-					if(s==null||s.equals("exit")){
-						pw.println("Bye!");
-						pw.flush();
-						break;
-					}
-					say("即将运行命令："+s);
-					RunReturn r=runCmd(s);
-					if (Global.debug){
-						say("命令执行结果("+r.code+")："+r.print);
-					}
-					Global.send(pw, tag, data)
-					pw.println("命令执行结果("+r.code+")："+r.print);
-					pw.flush();
-				}
-				pw.close();
-				br.close();
-				say("one client disconnected!");
-				client.close();
-			}
-			
+			init();
 		} catch (IOException e) {
 			e.printStackTrace();
-			e.getMessage();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
 		}
 	}
 	private void say(String s){
-		System.out.println("[Server]:"+s);
+		System.out.println("[WorkThread]:"+s);
 	}
+
 }

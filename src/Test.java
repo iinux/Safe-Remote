@@ -4,13 +4,13 @@ import java.net.MalformedURLException;
 
 public class Test {
     public static void main(String[] args){
-    	Runnable YckzS = new YckzS();
+    	Runnable YckzS = new RemoteControlServer();
 		Thread t=new Thread(YckzS);
 		t.start();
 		
 		{
 			try {
-				new YckzC();
+				new RemoteControlClient();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
