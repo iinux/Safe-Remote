@@ -1,3 +1,4 @@
+package data;
 
 public class RunReturn{
 	public String print;

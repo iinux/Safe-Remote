@@ -1,6 +1,4 @@
-
-//J Update
-//JavaTest Update
+package general;
 public class Global{
 	public static boolean debug=false;
 }

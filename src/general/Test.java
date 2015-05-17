@@ -1,9 +1,14 @@
+package general;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
+import work.RemoteControlClient;
+import work.RemoteControlServer;
+
 public class Test {
     public static void main(String[] args){
+//    	Base64.example();
     	Runnable YckzS = new RemoteControlServer();
 		Thread t=new Thread(YckzS);
 		t.start();
