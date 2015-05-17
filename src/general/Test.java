@@ -9,17 +9,16 @@ import work.RemoteControlServer;
 public class Test {
     public static void main(String[] args){
 //    	Base64.example();
-    	Runnable YckzS = new RemoteControlServer();
-		Thread t=new Thread(YckzS);
-		t.start();
-		
-		{
-			try {
-				new RemoteControlClient();
+    	if(args[0].equals("s")){
+	    	Runnable yckzS = new RemoteControlServer();
+	    	yckzS.run();
+    	}else if(args[0].equals("c")){
+    		try {
+				new RemoteControlClient(args[1]);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
+    	}
     }
     
     @SuppressWarnings("unused")

@@ -34,7 +34,6 @@ public class WorkThread{
 	PublicKey pukey;
 	PrivateKey prkey;
 	SecretKey aeskey;
-	boolean cipher;
 	public void getKeyAndSend() throws NoSuchAlgorithmException, IOException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException{
 		KeyPairGenerator kpg=KeyPairGenerator.getInstance("RSA");
 		kpg.initialize(1024);
@@ -150,17 +149,14 @@ public class WorkThread{
 		}
 	}
 	public WorkThread(Socket socket) throws IOException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException {
-		cipher=false;
-		
 		serverMailRoomThread = new ServerMailRoomThread(socket, this);
 		new Thread(serverMailRoomThread).start();
 
 		getKeyAndSend();
-		
-		cipher=true;
 	}
 	private ServerMailRoomThread serverMailRoomThread;
 
+	@SuppressWarnings("unused")
 	private void say(String s){
 		System.out.println("[WorkThread]:"+s);
 	}

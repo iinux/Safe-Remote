@@ -28,7 +28,6 @@ public class RemoteControlClient {
 	Scanner scanner;
 	PublicKey pukey;
 	SecretKey aeskey;
-	boolean cipher;
 	public void getPublicKey(byte[] bytes){
 		pukey=(PublicKey)ByteToObject(bytes);
 	}
@@ -36,8 +35,6 @@ public class RemoteControlClient {
 	public void getAESKey(byte[] bytes) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException{
 		bytes=Code.rsaDecode(pukey, bytes);
 		aeskey=(SecretKey)ByteToObject(bytes);
-		
-		cipher=true;
 	}
 	
 	private Object ByteToObject(byte[] bytes){
@@ -58,8 +55,7 @@ public class RemoteControlClient {
         }
         return obj;
     }
-	public RemoteControlClient() throws UnknownHostException, IOException {
-		cipher=false;
+	public RemoteControlClient(String serverIP) throws UnknownHostException, IOException {
 		
 		socket=new Socket(serverIP,serverPort);
 
@@ -72,8 +68,6 @@ public class RemoteControlClient {
 			input_str=scanner.nextLine();
 			send(PacketHead.RUN_CMD,input_str);
 		}
-		
-		//scanner.close();
 	}
 	private void send(String tag,String text){
 		String s=tag+":"+text;
