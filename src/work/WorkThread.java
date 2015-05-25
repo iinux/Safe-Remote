@@ -34,6 +34,7 @@ public class WorkThread{
 	PublicKey pukey;
 	PrivateKey prkey;
 	SecretKey aeskey;
+	boolean authed=false;
 	public void getKeyAndSend() throws NoSuchAlgorithmException, IOException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException{
 		KeyPairGenerator kpg=KeyPairGenerator.getInstance("RSA");
 		kpg.initialize(1024);
@@ -104,20 +105,7 @@ public class WorkThread{
 		try {
 			byte[] ctext=Code.aesEncode(aeskey, s.getBytes());
 			serverMailRoomThread.send(PacketHead.CIPHER, ctext);
-		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -128,33 +116,47 @@ public class WorkThread{
 			String tag=ptext.split(":")[0];
 			String text=ptext.substring( ptext.indexOf(":") + 1 );
 			
-			if(tag.equals(PacketHead.RUN_CMD)){
-				runCmd(text);
+			if(tag.equals(PacketHead.AUTH)){
+				auth(text);
 			}
-		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
+			if(authed==false){
+				return;
+			}
+			if(tag.equals(PacketHead.RUN_CMD)){
+				if(text.equals(Global.exitCommand)){
+					send(PacketHead.BYE,"");
+					serverMailRoomThread.close();
+				}else{
+					runCmd(text);
+				}
+			} 
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+	private void auth(String text) {
+		String userName,password;
+		String[] s=text.split(":");
+		userName=s[0];
+		password=s[1];
+		if(userName.equals(Global.userName)&&password.equals(Global.password)){
+			send(PacketHead.AUTH_OK,"");
+			authed=true;
+		}else{
+			send(PacketHead.AUTH_FAIL,"");
+			authed=false;
+		}
+		
+	}
 	public WorkThread(Socket socket) throws IOException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException {
 		serverMailRoomThread = new ServerMailRoomThread(socket, this);
-		new Thread(serverMailRoomThread).start();
+		serverMailRoomThread_thread = new Thread(serverMailRoomThread);
+		serverMailRoomThread_thread.start();
 
 		getKeyAndSend();
 	}
 	private ServerMailRoomThread serverMailRoomThread;
+	private Thread serverMailRoomThread_thread;
 
 	@SuppressWarnings("unused")
 	private void say(String s){

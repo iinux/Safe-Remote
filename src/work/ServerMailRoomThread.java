@@ -1,7 +1,10 @@
 package work;
+import general.Global;
+
 import java.io.IOException;
 import java.net.Socket;
 import data.PacketHead;
+import data.TipString;
 
 
 
@@ -10,7 +13,7 @@ public class ServerMailRoomThread extends MailRoomThread implements Runnable{
 	public ServerMailRoomThread(Socket socket,WorkThread wt) throws IOException {
 		super(socket);
 		this.wt=wt;
-		say("one client connected!");
+		say(TipString.ONE_CLIENT_CONNECT);
 	}
 	@Override
 	public void run() {
@@ -29,21 +32,17 @@ public class ServerMailRoomThread extends MailRoomThread implements Runnable{
 					wt.receive(bytes);
 				}
 				
-				int x=1+(int)(Math.random()*2);
+				int x=1+(int)(Math.random()*Global.updateKeyFrequency);
 				if(x==1){
 					wt.getKeyAndSend();
-					say("Key Update!");
+					say(TipString.KEY_UPDATE);
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
-				break;
+				if(Global.debug){
+					e.printStackTrace();
+				}
 			}
 				
-		}
-		try {
-			close();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 	private void say(String s){

@@ -1,4 +1,6 @@
 package work;
+import general.Global;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -17,6 +19,7 @@ import javax.crypto.SecretKey;
 import tool.Code;
 
 import data.PacketHead;
+import data.TipString;
 
 
 
@@ -25,9 +28,11 @@ public class RemoteControlClient {
 	int serverPort=1022;
 	Socket socket;
 	ClientMailRoomThread clientMailRoomThread;
+	Thread clientMailRoomThread_thread;
 	Scanner scanner;
 	PublicKey pukey;
 	SecretKey aeskey;
+	boolean authed=false;
 	public void getPublicKey(byte[] bytes){
 		pukey=(PublicKey)ByteToObject(bytes);
 	}
@@ -55,39 +60,44 @@ public class RemoteControlClient {
         }
         return obj;
     }
-	public RemoteControlClient(String serverIP) throws UnknownHostException, IOException {
+	public RemoteControlClient(String serverIP) throws UnknownHostException, IOException, InterruptedException {
 		
 		socket=new Socket(serverIP,serverPort);
 
 		clientMailRoomThread=new ClientMailRoomThread(socket, this);
-		new Thread(clientMailRoomThread).start();
-
+		clientMailRoomThread_thread = new Thread(clientMailRoomThread);
+		clientMailRoomThread_thread.start();
+		
 		scanner=new Scanner(System.in);
+		login();
 		String input_str;
 		while(true){
+			if(authed==false){
+				Thread.sleep(1000);
+				continue;
+			}
 			input_str=scanner.nextLine();
 			send(PacketHead.RUN_CMD,input_str);
+			
+			if(input_str.equals(Global.exitCommand)){
+				break;
+			}
 		}
+	}
+	public void login(){
+		String userName,password;
+		say(TipString.INPUT_USER_NAME);
+		userName=scanner.nextLine();
+		say(TipString.INPUT_PASSWORD);
+		password=scanner.nextLine();
+		send(PacketHead.AUTH,userName+":"+password);
 	}
 	private void send(String tag,String text){
 		String s=tag+":"+text;
 		try {
 			byte[] ctext=Code.aesEncode(aeskey, s.getBytes());
 			clientMailRoomThread.send(PacketHead.CIPHER, ctext);
-		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -100,21 +110,18 @@ public class RemoteControlClient {
 			
 			if(tag.equals(PacketHead.ECHO)){
 				say(text);
+			}else if(tag.equals(PacketHead.AUTH_OK)){
+				say(TipString.LOGIN_SUCCESS);
+				authed=true;
+			}else if(tag.equals(PacketHead.AUTH_FAIL)){
+				say(TipString.LOGIN_FAIL);
+				authed=false;
+				login();
+			}else if(tag.equals(PacketHead.BYE)){
+				scanner.close();
+				clientMailRoomThread.close();
 			}
-		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

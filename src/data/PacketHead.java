@@ -7,4 +7,8 @@ public class PacketHead {
 	public static final String CIPHER="CIPHER";
 	public static final String RUN_CMD="RUN_CMD";
 	public static final String ECHO="ECHO";
+	public static final String AUTH="AUTH";
+	public static final String AUTH_OK="AUTH_OK";
+	public static final String AUTH_FAIL="AUTH_FAIL";
+	public static final String BYE="BYE";
 }

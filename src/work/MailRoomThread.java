@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import data.TipString;
+
 import tool.Base64;
 
 
@@ -32,7 +34,7 @@ public class MailRoomThread {
 		pw.close();
 		br.close();
 		socket.close();
-		say("one client disconnected!");
+		say(TipString.ONE_CLIENT_DISCONNECT);
 	}
 	private void say(String s){
 		System.out.println("[MailRoomThread]:"+s);

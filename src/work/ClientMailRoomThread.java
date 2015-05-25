@@ -1,4 +1,6 @@
 package work;
+import general.Global;
+
 import java.io.IOException;
 import java.net.Socket;
 import data.PacketHead;
@@ -34,14 +36,10 @@ public class ClientMailRoomThread extends MailRoomThread implements Runnable{
 					wt.getAESKey( reveive( si.getBytes() ) );
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
-				break;
+				if(Global.debug){
+					e.printStackTrace();
+				}
 			}
-		}
-		try {
-			close();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 	@SuppressWarnings("unused")
