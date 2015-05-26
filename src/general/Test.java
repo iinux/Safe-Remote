@@ -8,29 +8,25 @@ import work.RemoteControlServer;
 
 public class Test {
     public static void main(String[] args){
-//    	Base64.example();
-    	if(args[0].equals("s")){
-	    	Runnable yckzS = new RemoteControlServer();
-	    	yckzS.run();
-    	}else if(args[0].equals("c")){
+    	if(args.length==0){
+    		new Thread(new RemoteControlServer()).start();
     		try {
-				new RemoteControlClient(args[1]);
+				new RemoteControlClient("127.0.0.1");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+    	}else{
+	    	if(args[0].equals("s")){
+		    	Runnable yckzS = new RemoteControlServer();
+		    	yckzS.run();
+	    	}else if(args[0].equals("c")){
+	    		try {
+					new RemoteControlClient(args[1]);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+	    	}
     	}
-    }
-    
-    @SuppressWarnings("unused")
-	private static void test_stringCopy(){
-        String s ="out";
-        test1(s);
-        System.out.println(s);
-
-        My m=new My();
-        m.s="out";
-        test2(m);
-        System.out.println(m.s);
     }
     public void sayHelloWorld() throws MalformedURLException, IOException{
         ByteArrayOutputStream stoned = new ByteArrayOutputStream(20480);
@@ -48,16 +44,4 @@ public class Test {
             }
         }
     }
-
-    private static void test2(My m) {
-		m.s="inner";
-	}
-
-    private  static void test1(String s){
-        s = "inner";
-    }
-
-}
-class My{
-	String s;
 }

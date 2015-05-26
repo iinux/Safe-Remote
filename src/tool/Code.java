@@ -41,14 +41,14 @@ public class Code {
 	}
 	public static byte[] aesEncode(Key key,byte[] text) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException{
 
-		Cipher cipher = Cipher.getInstance("AES");
+		Cipher cipher = Cipher.getInstance("AES");///ECB/NoPadding");
 		cipher.init(Cipher.ENCRYPT_MODE, key);
 		byte[] newText=cipher.doFinal(text);
 		return newText;
 	}
 	public static byte[] aesDecode(Key key,byte[] text) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException{
 
-		Cipher cipher = Cipher.getInstance("AES");
+		Cipher cipher = Cipher.getInstance("AES");///ECB/NoPadding");
 		cipher.init(Cipher.DECRYPT_MODE, key);
 		byte[] newText=cipher.doFinal(text);
 		return newText;

@@ -8,7 +8,7 @@ import data.TipString;
 
 
 
-public class ServerMailRoomThread extends MailRoomThread implements Runnable{
+public class ServerMailRoomThread extends MailRoomThread implements Runnable,Caller{
 	WorkThread wt;
 	public ServerMailRoomThread(Socket socket,WorkThread wt) throws IOException {
 		super(socket);
@@ -21,7 +21,14 @@ public class ServerMailRoomThread extends MailRoomThread implements Runnable{
 		int len;
 		while(true){
 			try {
+				TimeCount t = null;
+				if(Global.switch_checkClientTime){
+					t = new TimeCount(this, Global.checkClientTime);
+				}
 				head=br.readLine();
+				if(Global.switch_checkClientTime){
+					t.tick=true;
+				}
 				String[] s=head.split(":");
 				tag=s[0];
 				len=Integer.parseInt(s[1]);
@@ -41,12 +48,30 @@ public class ServerMailRoomThread extends MailRoomThread implements Runnable{
 				if(Global.debug){
 					e.printStackTrace();
 				}
+				break;
 			}
-				
+		}
+		try {
+			close();
+		} catch (IOException e) {
+			if(Global.debug){
+				e.printStackTrace();
+			}
 		}
 	}
 	private void say(String s){
 		System.out.println("[ServerMailRoomThread]:"+s);
+	}
+	@Override
+	public void work() {
+		wt.send(PacketHead.ECHO,TipString.TIME_OUT);
+		try {
+			close();
+		} catch (IOException e) {
+			if(Global.debug){
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

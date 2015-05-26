@@ -10,5 +10,6 @@ public class PacketHead {
 	public static final String AUTH="AUTH";
 	public static final String AUTH_OK="AUTH_OK";
 	public static final String AUTH_FAIL="AUTH_FAIL";
+	public static final String AUTH_FAIL_TO_MUCH="AUTH_FAIL_TO_MUCH";
 	public static final String BYE="BYE";
 }

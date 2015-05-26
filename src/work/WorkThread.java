@@ -35,6 +35,7 @@ public class WorkThread{
 	PrivateKey prkey;
 	SecretKey aeskey;
 	boolean authed=false;
+	int passwordErrorCount=0;
 	public void getKeyAndSend() throws NoSuchAlgorithmException, IOException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException{
 		KeyPairGenerator kpg=KeyPairGenerator.getInstance("RSA");
 		kpg.initialize(1024);
@@ -100,7 +101,7 @@ public class WorkThread{
 			send(PacketHead.ECHO,TipString.RUN_CMD_ERROR);
 		}
 	}
-	private void send(String tag,String text){
+	public void send(String tag,String text){
 		String s=tag+":"+text;
 		try {
 			byte[] ctext=Code.aesEncode(aeskey, s.getBytes());
@@ -143,8 +144,13 @@ public class WorkThread{
 			send(PacketHead.AUTH_OK,"");
 			authed=true;
 		}else{
-			send(PacketHead.AUTH_FAIL,"");
 			authed=false;
+			passwordErrorCount++;
+			if(passwordErrorCount>=Global.passwordErrorCount){
+				send(PacketHead.ECHO,TipString.PASSWORD_ERROR_OVER);
+			}else{
+				send(PacketHead.AUTH_FAIL,"");
+			}
 		}
 		
 	}

@@ -39,6 +39,7 @@ public class ClientMailRoomThread extends MailRoomThread implements Runnable{
 				if(Global.debug){
 					e.printStackTrace();
 				}
+				break;
 			}
 		}
 	}

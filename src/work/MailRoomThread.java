@@ -31,10 +31,12 @@ public class MailRoomThread {
 		pw.flush();
 	}
 	public void close() throws IOException{
-		pw.close();
-		br.close();
-		socket.close();
-		say(TipString.ONE_CLIENT_DISCONNECT);
+		if(socket.isClosed()==false){
+			pw.close();
+			br.close();
+			socket.close();
+			say(TipString.ONE_CLIENT_DISCONNECT);
+		}
 	}
 	private void say(String s){
 		System.out.println("[MailRoomThread]:"+s);
