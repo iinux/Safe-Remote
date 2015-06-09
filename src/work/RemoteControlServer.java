@@ -7,13 +7,12 @@ import java.net.Socket;
 import data.TipString;
 
 
-
-
-
 public class RemoteControlServer implements Runnable{
-	ServerSocket server;
+	private ServerSocket server;
+	public static BlackListManager blackListManager;
 	@Override
 	public void run() {
+		blackListManager=new BlackListManager();
 		try {
 			server=new ServerSocket(1022);
 			say(TipString.SERVER_START_SUCCESS);

@@ -1,7 +1,6 @@
 package work;
 
 import general.Global;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -23,6 +22,7 @@ import javax.crypto.SecretKey;
 
 
 import tool.Code;
+import tool.MachineCode;
 
 import data.PacketHead;
 import data.RunReturn;
@@ -68,7 +68,7 @@ public class WorkThread{
             oo.close();
         }
         catch(Exception e) {
-            System.out.println("translation"+e.getMessage());
+            say("[ObjectToByte Error]:"+e.getMessage());
             e.printStackTrace();
         }
         return(bytes);
@@ -140,6 +140,13 @@ public class WorkThread{
 		String[] s=text.split(":");
 		userName=s[0];
 		password=s[1];
+		
+		if( RemoteControlServer.blackListManager.isInBlackList(socket.getInetAddress()) ){
+			send(PacketHead.ECHO,TipString.PASSWORD_ERROR_OVER);
+			serverMailRoomThread.close();
+			return;
+		}
+		
 		if(userName.equals(Global.userName)&&password.equals(Global.password)){
 			send(PacketHead.AUTH_OK,"");
 			authed=true;
@@ -148,6 +155,8 @@ public class WorkThread{
 			passwordErrorCount++;
 			if(passwordErrorCount>=Global.passwordErrorCount){
 				send(PacketHead.ECHO,TipString.PASSWORD_ERROR_OVER);
+				RemoteControlServer.blackListManager.add(socket.getInetAddress());
+				serverMailRoomThread.close();
 			}else{
 				send(PacketHead.AUTH_FAIL,"");
 			}
@@ -155,16 +164,22 @@ public class WorkThread{
 		
 	}
 	public WorkThread(Socket socket) throws IOException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException {
+		this.socket=socket;
 		serverMailRoomThread = new ServerMailRoomThread(socket, this);
 		serverMailRoomThread_thread = new Thread(serverMailRoomThread);
 		serverMailRoomThread_thread.start();
 
 		getKeyAndSend();
+		sendServerSignature();
+	}
+	private void sendServerSignature() {
+		send(PacketHead.SERVER_SIGNATURE,MachineCode.getMachineCode(true));
+		
 	}
 	private ServerMailRoomThread serverMailRoomThread;
 	private Thread serverMailRoomThread_thread;
+	private Socket socket;
 
-	@SuppressWarnings("unused")
 	private void say(String s){
 		System.out.println("[WorkThread]:"+s);
 	}

@@ -1,4 +1,6 @@
 package work;
+import general.Global;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,12 +32,21 @@ public class MailRoomThread {
 		pw.print(s);
 		pw.flush();
 	}
-	public void close() throws IOException{
-		if(socket.isClosed()==false){
-			pw.close();
-			br.close();
-			socket.close();
-			say(TipString.ONE_CLIENT_DISCONNECT);
+	public void close(){
+		try{
+			if(socket.isClosed()==false){
+				is.close();
+				pw.close();
+				br.close();
+				socket.close();
+				say(TipString.ONE_CLIENT_DISCONNECT);
+			}
+		}catch(Exception e){
+			if(Global.debug){
+				e.printStackTrace();
+			}else{
+				say(e.getMessage());
+			}
 		}
 	}
 	private void say(String s){

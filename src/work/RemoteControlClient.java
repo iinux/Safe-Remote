@@ -69,7 +69,6 @@ public class RemoteControlClient {
 		clientMailRoomThread_thread.start();
 		
 		scanner=new Scanner(System.in);
-		login();
 		String input_str;
 		while(true){
 			if(authed==false){
@@ -116,10 +115,27 @@ public class RemoteControlClient {
 			}else if(tag.equals(PacketHead.AUTH_FAIL)){
 				say(TipString.LOGIN_FAIL);
 				authed=false;
-				login();
+				new Thread(){
+					public void run(){
+						login();
+					}
+				}.start();
 			}else if(tag.equals(PacketHead.BYE)){
 				scanner.close();
 				clientMailRoomThread.close();
+			}else if(tag.equals(PacketHead.SERVER_SIGNATURE)){
+				say(TipString.CHECK_SERVER_SIGNATURE + text);
+				new Thread(){
+					public void run(){
+						String input=scanner.nextLine();
+						if(input.equals("yes")){
+							login();
+						}else{
+							scanner.close();
+							clientMailRoomThread.close();
+						}
+					}
+				}.start();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

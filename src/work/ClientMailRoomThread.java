@@ -20,6 +20,7 @@ public class ClientMailRoomThread extends MailRoomThread implements Runnable{
 		while(true){
 			try {
 				head=br.readLine();
+				if(head==null) break;
 				String[] s=head.split(":");
 				tag=s[0];
 				len=Integer.parseInt(s[1]);
@@ -35,7 +36,9 @@ public class ClientMailRoomThread extends MailRoomThread implements Runnable{
 				}else if(tag.equals(PacketHead.SEND_KEY)){
 					wt.getAESKey( reveive( si.getBytes() ) );
 				}
-			} catch (Exception e) {
+			}catch(IOException e){
+				break;
+			}catch (Exception e) {
 				if(Global.debug){
 					e.printStackTrace();
 				}

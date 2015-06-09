@@ -29,6 +29,7 @@ public class ServerMailRoomThread extends MailRoomThread implements Runnable,Cal
 				if(Global.switch_checkClientTime){
 					t.tick=true;
 				}
+				if(head==null) break;
 				String[] s=head.split(":");
 				tag=s[0];
 				len=Integer.parseInt(s[1]);
@@ -40,24 +41,20 @@ public class ServerMailRoomThread extends MailRoomThread implements Runnable,Cal
 				}
 				
 				int x=1+(int)(Math.random()*Global.updateKeyFrequency);
-				if(x==1){
+				if(x==1&&wt.authed){
 					wt.getKeyAndSend();
 					say(TipString.KEY_UPDATE);
 				}
-			} catch (Exception e) {
+			}catch(IOException e){
+				break;
+			}catch (Exception e) {
 				if(Global.debug){
 					e.printStackTrace();
 				}
 				break;
 			}
 		}
-		try {
-			close();
-		} catch (IOException e) {
-			if(Global.debug){
-				e.printStackTrace();
-			}
-		}
+		close();
 	}
 	private void say(String s){
 		System.out.println("[ServerMailRoomThread]:"+s);
@@ -65,13 +62,7 @@ public class ServerMailRoomThread extends MailRoomThread implements Runnable,Cal
 	@Override
 	public void work() {
 		wt.send(PacketHead.ECHO,TipString.TIME_OUT);
-		try {
-			close();
-		} catch (IOException e) {
-			if(Global.debug){
-				e.printStackTrace();
-			}
-		}
+		close();
 	}
 
 }

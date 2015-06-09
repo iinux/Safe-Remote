@@ -12,4 +12,5 @@ public class PacketHead {
 	public static final String AUTH_FAIL="AUTH_FAIL";
 	public static final String AUTH_FAIL_TO_MUCH="AUTH_FAIL_TO_MUCH";
 	public static final String BYE="BYE";
+	public static final String SERVER_SIGNATURE="SERVER_SIGNATURE";
 }
